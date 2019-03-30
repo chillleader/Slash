@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="ru.ifmo.se.musician">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+            android:allowBackup="true"
+            android:hardwareAccelerated="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme">
+        <activity
+                android:name=".MainMusician"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+
+        <meta-data
+                android:name="com.here.android.maps.appid"
+                android:value="tXzLIDmBp6hTIz8rzMkh"/>
+        <meta-data
+                android:name="com.here.android.maps.apptoken"
+                android:value="Z3gOQf27pSb_Kx9FuOCvXA"/>
+        <meta-data
+                android:name="com.here.android.maps.license.key"
+                android:value="@string/license_key"/>
+
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <service
+                android:name="com.here.android.mpa.service.MapService"
+                android:exported="false"
+                android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="INIT_MAP"/>
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>
