@@ -23,10 +23,10 @@ import helloworld_pb2_grpc
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-musicians = [helloworld_pb2.Musician(name="Face", generes=["gener1", "gener2"], tracks=["zapad", "lol2"] , start_time="12:00", end_time="13:00", x_coord=59.9343, y_coord=30.3361),
-            helloworld_pb2.Musician(name="Dog", generes=["gener2", "gener3"], tracks=["zapad", "lol2"], start_time="13:00", end_time="14:00", x_coord=59.9323, y_coord=30.3321),
-            helloworld_pb2.Musician(name="Naruto", generes=["gener2", "gener3"], tracks=["zapad", "lol2"], start_time="10:00", end_time="14:00", x_coord=59.9313, y_coord=30.3351),
-            helloworld_pb2.Musician(name="You", generes=["gener2", "gener3", "gener2"], tracks=["zapad", "lol2"], start_time="13:00", end_time="14:00", x_coord=59.9323, y_coord=30.3351)]
+musicians = [helloworld_pb2.Musician(name="A$AP Pocket", generes=["hip-hop", "rap"], tracks=["zapad", "lol2"] , start_time="12:00", end_time="13:00", x_coord=52.511565, y_coord=13.409168),
+            helloworld_pb2.Musician(name="Dogg", generes=["gener2", "gener3"], tracks=["zapad", "lol2"], start_time="13:00", end_time="14:00", x_coord=52.517107, y_coord=13.387278),
+            helloworld_pb2.Musician(name="2Pacman", generes=["gener2", "gener3"], tracks=["zapad", "lol2"], start_time="10:00", end_time="14:00", x_coord=52.516261, y_coord=13.376774),
+            helloworld_pb2.Musician(name="Dr. Der", generes=["gener2", "gener3", "gener2"], tracks=["zapad", "lol2"], start_time="13:00", end_time="14:00", x_coord=52.518366, y_coord=13.380350)]
 
   
 class Greeter(helloworld_pb2_grpc.CommunicatorServicer):
