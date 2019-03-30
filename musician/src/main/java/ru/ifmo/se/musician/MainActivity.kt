@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color.argb
 import android.graphics.PointF
@@ -121,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                                         Log.i("ForX", x.toString())
                                         Log.i("ForY", y.toString())
                                         for (musician in tempMusicians) {
-                                            if (musician.xCoord == x && musician.yCoord == y) {
+                                            if (musician.xCoord == x && musician.yCoord == y && !musician.name.equals("None")) {
                                                 createPopUp(musician)
                                                 return false
                                             }
@@ -147,6 +148,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         private fun createPopUp(musician: Musician) {
+
+
                             val pw = Dialog(this@MainActivity)
                             pw.setContentView(R.layout.autor)
 //                            pw.setCanceledOnTouchOutside(false)
@@ -171,10 +174,12 @@ class MainActivity : AppCompatActivity() {
 
                             val stT = pw.findViewById<TextView>(R.id.startTime)
                             stT.text = musician.startTime
+                            stT.setTextColor(argb(0xff, 0xff, 0xff, 0xff))
                             stT.textSize = 10f
                             stT.gravity = Gravity.CENTER
                             val enT = pw.findViewById<TextView>(R.id.endTime)
                             enT.textSize = 10f
+                            enT.setTextColor(argb(0xff, 0xff, 0xff, 0xff))
                             enT.text = musician.endTime
 
 
@@ -293,10 +298,29 @@ class MainActivity : AppCompatActivity() {
                     drawable.setBounds(0, 0, canvas.width, canvas.height)
                     drawable.draw(canvas)
 
+
+                    //////
+                    Log.i("ForEach", "None")
+                    val unknownDrawable = resources.getDrawable(R.drawable.ic_insta, theme)
+                    val unkMusicianIcon = Bitmap.createBitmap(
+                        unknownDrawable.intrinsicWidth,
+                        unknownDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+                    )
+                    Log.i("ForEach", "None")
+                    val unkCanvas = Canvas(unkMusicianIcon)
+                    Log.i("ForEach", "None")
+                    unknownDrawable.setBounds(0, 0, unkCanvas.width, unkCanvas.height)
+                    Log.i("ForEach", "None")
+                    unknownDrawable.draw(unkCanvas)
+                    Log.i("ForEach", "None")
+                    /////
+
                     Log.i("forEach", "Before")
                     var musiciansMarkers = ArrayList<MapMarker>()
                     val tempMusiciansMarkers = ArrayList<MapMarker>()
                     val cl = ClusterLayer()
+                    val musiciansForDelete = arrayListOf<Musician>()
+
                     Thread {
                         while(true) {
                             //map.removeMapObjects(musiciansMarkers.toList())
@@ -305,24 +329,34 @@ class MainActivity : AppCompatActivity() {
 
                             GrpcTask(musicians).execute()
                             tempMusiciansMarkers.clear()
+                            musiciansForDelete.clear()
                             musicians.forEach {
                                 val image = Image()
                                 image.bitmap = musicianIcon
-                                tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
+                                if (!it.name.equals("None")) {
+                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
+                                } else {
+                                    musiciansForDelete.add(it)
+                                    val newimage = Image()
+                                    newimage.bitmap = unkMusicianIcon
+                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), newimage))
+                                }
                                 Log.i("ForEach", it.name)
                             }
-                            if (!tempMusiciansMarkers.isEmpty()) {
-                                val markers = cl.markers
-                                cl.removeMarkers(markers)
 
-//                                cl.removeMarkers(musiciansMarkers.toList())
-//                                map.removeClusterLayer(cl)
+
+                            if (!tempMusiciansMarkers.isEmpty()) {
+                                cl.removeMarkers(musiciansMarkers)
+
                                 musiciansMarkers = tempMusiciansMarkers
-//                                musiciansMarkers.clear()
-                                //map.addMapObjects(musiciansMarkers.toList())
                                 cl.addMarkers(musiciansMarkers.toList())
                                 map.addClusterLayer(cl)
-                                val copyMusicians = musicians.toTypedArray()
+                                val TempMusicians = arrayListOf<Musician>()
+                                for (mus in musicians)
+                                    if (!mus.name.equals("None"))
+                                        TempMusicians.add(mus)
+
+                                val copyMusicians = TempMusicians.toTypedArray()
                                 if (copyMusicians.isNotEmpty())
                                     this@MainActivity.runOnUiThread {
                                         findViewById<RecyclerView>(R.id.list).apply {

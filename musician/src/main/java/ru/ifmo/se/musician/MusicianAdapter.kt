@@ -50,11 +50,10 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
 
         holder.singerIcon.post(changeImRunnable)
 
-
         holder.view.setOnClickListener({
             val pw = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar)
             pw.setContentView(R.layout.autor)
-            pw.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT);
+            pw.getWindow().setLayout(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT)
             pw.show()
 
             val singerIcon = pw.findViewById<ImageView>(R.id.image)
@@ -83,8 +82,10 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
 
             val stT = pw.findViewById<TextView>(R.id.startTime)
             stT.text = musician.startTime
+            stT.setTextColor(argb(0xff, 0xff, 0xff, 0xff))
             val enT = pw.findViewById<TextView>(R.id.endTime)
             enT.text = musician.endTime
+            enT.setTextColor(argb(0xff, 0xff, 0xff, 0xff))
 
 
             val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
@@ -100,41 +101,6 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
                 textView.setTypeface(typeface)
                 littleList.addView(textView)
             }
-
-//            <!--<TextView-->
-//            <!--android:layout_width="match_parent"-->
-//            <!--android:layout_height="wrap_content"-->
-//            <!--android:text="Face - West falling down"-->
-//            <!--android:textColor="#FF000000"-->
-//            <!--android:paddingLeft="48dp" android:fontFamily="@font/roboto_regular_sh"-->
-
-
-//            <LinearLayout
-//            android:layout_width="match_parent"
-//            android:layout_height="wrap_content"
-//            android:weightSum="1">
-//            <TextView
-//            android:layout_width="match_parent"
-//            android:layout_height="match_parent"
-//            android:text="Face - West falling down"
-//            android:layout_weight="0.25"
-//            android:textColor="#FF000000"
-//            android:paddingLeft="48dp" android:fontFamily="@font/roboto_regular_sh"
-//
-//            />
-//            <TextView
-//            android:layout_width="match_parent"
-//            android:layout_height="match_parent"
-//            android:textColor="#FF000000"
-//            android:text="playing now"
-//
-//            android:layout_weight="0.75"
-//            android:gravity="right"
-//            android:paddingRight="26dp" android:fontFamily="@font/roboto_regular_sh"
-//
-//            />
-
-
 
             val return_but = pw.findViewById<Button>(R.id.return_button)
             return_but.setOnClickListener {
