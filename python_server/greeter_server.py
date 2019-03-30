@@ -67,7 +67,8 @@ def check_media(id) -> bool:
     print("request was opended")
 
     print(resp)
-    if resp is "yes":
+    if resp == b'yes':
+        print("YES!!!!")
         return True
         #musician_list.append(Musician( ... ))
 
@@ -82,7 +83,7 @@ def load_photos(ptr):
             agent.update(media)
             agent.update(media.location)
             musicians.append( # returns (EmptyMessage) {}
-                helloworld_pb2.Musician(name="None", generes=[""], tracks=[""] , start_time="xx:xx", end_time="xx:xx", x_coord=media.location.coordinates[0], y_coord=media.location.coordinates[1]),
+                helloworld_pb2.Musician(name="None", generes=["xxx"], tracks=["xxx"] , start_time="xx:xx", end_time="xx:xx", x_coord=media.location.coordinates[0], y_coord=media.location.coordinates[1]),
             )
             print("ADDED!")
 
