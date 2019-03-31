@@ -35,6 +35,16 @@ class MainMusician : AppCompatActivity() {
             val endTime = findViewById<TextInputEditText>(R.id.end_time).text.toString()
             val builder = Musician.newBuilder().setStartTime(startTime).setEndTime(endTime)
 
+
+            val trackList = findViewById<ListView>(R.id.tracks)
+            val row_genre = findViewById<TextInputEditText>(R.id.sing_appender)
+            findViewById<ImageView>(R.id.add_sing_button).setOnClickListener {
+                if (!row_genre.text.isEmpty()) {
+                    
+
+                }
+            }
+
             val request = GeocodeRequest2(address).setSearchArea(GeoCoordinate(52.5200, 13.4050), 10)
             request.execute(MyResultListener(builder))
             finish()

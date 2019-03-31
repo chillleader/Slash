@@ -18,6 +18,7 @@
             android:theme="@style/AppTheme">
         <activity
                 android:name=".MainMusician"
+                android:windowSoftInputMode="adjustPan"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
 

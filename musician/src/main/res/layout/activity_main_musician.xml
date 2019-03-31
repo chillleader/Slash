@@ -2,14 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="#FF333333"
               android:orientation="vertical"
+              android:windowSoftInputMode="adjustPan"
               android:weightSum="1">
 
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
                                        xmlns:app="http://schemas.android.com/apk/res-auto"
                                        android:layout_width="match_parent"
                                        android:layout_height="?android:attr/actionBarSize"
-                                       android:background="#00BBD3"
+                                       android:background="#000000"
                                        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
                                        android:layout_gravity="center">
         <Button
@@ -32,60 +34,20 @@
         />
     </android.support.v7.widget.Toolbar>
 
-    <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.1">
-
-        <android.support.design.widget.TextInputEditText
-                android:id="@+id/location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Place" />
-
-    </android.support.design.widget.TextInputLayout>
-
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_weight="0.4">
-
-        <ListView android:id="@+id/tracks"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"/>
-    </FrameLayout>
-
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal"
-                  android:weightSum="1">
-        I<ImageView
+    <android.support.design.widget.TextInputEditText
+            android:id="@+id/location"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/list_arrow_black"
-            android:id="@+id/add_sing_button"
-            android:layout_weight="0.9"/>
-        <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.1">
-
-            <android.support.design.widget.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:hint="sing"
-                    android:id="@+id/sing_appender"/>
-
-        </android.support.design.widget.TextInputLayout>
-
-    </LinearLayout>
-
-
+            android:layout_weight="0.18"
+            android:hint="Place" />
     <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="match_parent"
+              android:layout_weight="0.19"
+              android:textColorHint="#FFFFFFFF"
               android:text="Time"/>
     <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_weight="0.2">
+                 android:layout_height="match_parent"
+                 android:layout_weight="0.18">
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
@@ -99,7 +61,10 @@
                 <android.support.design.widget.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="start_time" android:id="@+id/start_time"/>
+                        android:hint="start time"
+                        android:textColorHint="#FFFFFFFF"
+                        android:outlineSpotShadowColor="@color/colorAccent"
+                        android:id="@+id/start_time"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -111,18 +76,70 @@
                 <android.support.design.widget.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:hint="end_time"
+                        android:hint="end time"
+                        android:textColorHint="#FFFFFFFF"
+                        android:shadowColor="@color/colorAccent"
                         android:id="@+id/end_time"/>
 
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
     </FrameLayout>
 
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="0.18"
+                  android:orientation="horizontal"
+                  android:weightSum="1">
+        I<ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/add_white"
+            android:id="@+id/add_sing_button"
+            android:layout_weight="0.9"/>
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.1">
+
+            <android.support.design.widget.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="genres"
+                    android:textColorHint="#FFFFFFFF"
+                    android:id="@+id/sing_appender"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+
+
+
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_weight="0.09">
+
+        <ListView android:id="@+id/tracks"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent">
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="OLOLOLOL"
+                    android:textColor="#FFFFFFFF"/>
+        </ListView>
+    </FrameLayout>
+
     <Button android:id="@+id/addProfile"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:textColor="#FFFFFFFF"
+            android:windowSoftInputMode="adjustResize"
+
+            android:background="@color/colorAccent"
             style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_weight="0.18"
             android:text="CONFIRM"/>
 </LinearLayout>
 

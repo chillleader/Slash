@@ -25,18 +25,22 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.beust.klaxon.Klaxon
 import com.here.android.mpa.cluster.ClusterLayer
 import com.here.android.mpa.common.*
 import com.here.android.mpa.mapping.*
 import com.here.android.mpa.mapping.Map
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
 import ru.ifmo.se.protofiles.CommunicatorGrpc
 import ru.ifmo.se.protofiles.EmptyMessage
 import ru.ifmo.se.protofiles.Musician
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.net.URL
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +57,14 @@ class MainActivity : AppCompatActivity() {
 
     private val musicians = arrayListOf<Musician>()
 
+    private var m_marker_image: Image? = null
+
+    private var latt : Double = 0.0
+    private var lngg: Double = 0.0
+
+    private var m_tap_marker: MapScreenMarker? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -61,6 +73,8 @@ class MainActivity : AppCompatActivity() {
         checkPermissions()
         findViewById<FloatingActionButton>(R.id.profileButton).setOnClickListener {
             val intent = Intent(this, MainMusician::class.java)
+            intent.putExtra("Lat", latt)
+            intent.putExtra("Lng", lngg)
             startActivity(intent)
         }
     }
@@ -81,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         initMap()
     }
 
+    class Datas(val lat: Double, val lng: Double, val busy: Int)
+
     private fun initMap() {
         mapFragment = supportFragmentManager.findFragmentById(R.id.mapfragment) as SupportMapFragment
         val success = MapSettings.setIsolatedDiskCacheRootPath(applicationContext.getExternalFilesDir(null).absolutePath +
@@ -89,6 +105,12 @@ class MainActivity : AppCompatActivity() {
             mapFragment.init {
                 if (it == OnEngineInitListener.Error.NONE) {
 
+                    m_marker_image = Image()
+                    try {
+                        m_marker_image?.setImageResource(R.drawable.marker)
+                    } catch (e: Exception) {
+                        Log.e("ForErr", "FUCK!!!")
+                    }
                     ////
                     mapFragment.mapGesture.addOnGestureListener(object : MapGesture.OnGestureListener {
 
@@ -267,8 +289,20 @@ class MainActivity : AppCompatActivity() {
                             return false
                         }
 
-                        override fun  onLongPressEvent(v : PointF) : Boolean {
+                        override fun  onLongPressEvent(pointF : PointF) : Boolean {
                             Log.i("Fuck", "onLongPressEvent")
+                            if (m_tap_marker == null) {
+                                Log.i("Fuck", "Null")
+                                m_tap_marker = MapScreenMarker(
+                                    pointF,
+                                    m_marker_image
+                                )
+                                map.addMapObject(m_tap_marker)
+
+                            } else {
+                                Log.i("Fuck", "Not Null")
+                                m_tap_marker?.setScreenCoordinate(pointF)
+                            }
                             return false
                         }
 
@@ -322,50 +356,87 @@ class MainActivity : AppCompatActivity() {
                     val musiciansForDelete = arrayListOf<Musician>()
 
                     Thread {
-                        while(true) {
-                            //map.removeMapObjects(musiciansMarkers.toList())
-
-                            Log.i("forEach", "Executing")
-
-                            GrpcTask(musicians).execute()
-                            tempMusiciansMarkers.clear()
-                            musiciansForDelete.clear()
-                            musicians.forEach {
-                                val image = Image()
-                                image.bitmap = musicianIcon
-                                if (!it.name.equals("None")) {
-                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
-                                } else {
-                                    musiciansForDelete.add(it)
-                                    val newimage = Image()
-                                    newimage.bitmap = unkMusicianIcon
-                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), newimage))
-                                }
-                                Log.i("ForEach", it.name)
-                            }
-
-
-                            if (!tempMusiciansMarkers.isEmpty()) {
-                                cl.removeMarkers(musiciansMarkers)
-
-                                musiciansMarkers = tempMusiciansMarkers
-                                cl.addMarkers(musiciansMarkers.toList())
-                                map.addClusterLayer(cl)
-                                val TempMusicians = arrayListOf<Musician>()
-                                for (mus in musicians)
-                                    if (!mus.name.equals("None"))
-                                        TempMusicians.add(mus)
-
-                                val copyMusicians = TempMusicians.toTypedArray()
-                                if (copyMusicians.isNotEmpty())
-                                    this@MainActivity.runOnUiThread {
-                                        findViewById<RecyclerView>(R.id.list).apply {
-                                            adapter = MusicianAdapter(copyMusicians, this@MainActivity, windowManager)
-                                            layoutManager = LinearLayoutManager(this@MainActivity)
+                        doAsync {
+                            val result = URL("http://35.228.95.2:3000/get?day=Monday&time=12&n=70").readText()
+                            Log.i("ForResult", result)
+                            Log.i("ForResultt", "PARSED")
+                            val datas = Klaxon().parseArray<Datas>(result)
+//                            val datas = Klaxon().parseArray<Datas>("""
+//[{"lat": 52.513285, "lng": 13.3086379, "busy": 23}, {"lat": 52.5308414, "lng": 13.3177503, "busy": 27}, {"lat": 52.5306425, "lng": 13.3186259, "busy": 27}, {"lat": 52.5017107, "lng": 13.3269588, "busy": 42}, {"lat": 52.5080639, "lng": 13.3319012, "busy": 0}, {"lat": 52.50662999999999, "lng": 13.33067, "busy": 25}, {"lat": 52.5201521, "lng": 13.3460225, "busy": 73}, {"lat": 52.5460018, "lng": 13.3479864, "busy": 0}, {"lat": 52.5201521, "lng": 13.3460225, "busy": 73}, {"lat": 52.48389299999999, "lng": 13.350982, "busy": 0}, {"lat": 52.4839188, "lng": 13.350969, "busy": 0}, {"lat": 52.5460018, "lng": 13.3479864, "busy": 0}, {"lat": 52.50204899999999, "lng": 13.356539, "busy": 53}, {"lat": 52.49864199999999, "lng": 13.356607, "busy": 0}, {"lat": 52.4900866, "lng": 13.3597431, "busy": 0}, {"lat": 52.49864199999999, "lng": 13.356607, "busy": 0}, {"lat": 52.5043194, "lng": 13.3581959, "busy": 0}, {"lat": 52.5077126, "lng": 13.3626739, "busy": 49}, {"lat": 52.50911620000001, "lng": 13.3655546, "busy": 0}, {"lat": 52.5090131, "lng": 13.3660136, "busy": 0}]
+//                            """.trimIndent())
+                            if (datas != null) {
+                                this@MainActivity.runOnUiThread {
+                                    for (data in datas) {
+                                        if (data.busy != 0) {
+                                            val circle = MapCircle(400.0, GeoCoordinate(data.lat, data.lng))
+                                            when (data.busy) {
+                                                in 0..30 -> circle.setFillColor(argb(0xa0, 0xf6, 0xe5, 0x8d))
+                                                in 30..60 -> circle.setFillColor(argb(0xd9, 0xff, 0xbe, 0x76))
+                                                else -> circle.setFillColor(argb(0xf0, 0xf0, 0x93, 0x2b))
+                                            }
+                                            Log.i("ForRes", data.busy.toString())
+                                            map.addMapObject(circle)
                                         }
                                     }
+                                }
                             }
-                            Thread.sleep(10000)
+                            Log.i("ForResultt", "out")
+
+                        }
+                        while(true) {
+                            try {
+                                //map.removeMapObjects(musiciansMarkers.toList())
+
+                                Log.i("forEach", "Executing")
+
+                                GrpcTask(musicians).execute()
+                                tempMusiciansMarkers.clear()
+                                musiciansForDelete.clear()
+                                musicians.forEach {
+                                    val image = Image()
+                                    image.bitmap = musicianIcon
+                                    if (!it.name.equals("None")) {
+                                        tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
+                                    } else {
+                                        musiciansForDelete.add(it)
+                                        val newimage = Image()
+                                        newimage.bitmap = unkMusicianIcon
+                                        tempMusiciansMarkers.add(
+                                            MapMarker(
+                                                GeoCoordinate(it.xCoord, it.yCoord),
+                                                newimage
+                                            )
+                                        )
+                                    }
+                                    Log.i("ForEach", it.name)
+                                }
+
+
+                                if (!tempMusiciansMarkers.isEmpty()) {
+                                    cl.removeMarkers(musiciansMarkers)
+
+                                    musiciansMarkers = tempMusiciansMarkers
+                                    cl.addMarkers(musiciansMarkers.toList())
+                                    map.addClusterLayer(cl)
+                                    val TempMusicians = arrayListOf<Musician>()
+                                    for (mus in musicians)
+                                        if (!mus.name.equals("None"))
+                                            TempMusicians.add(mus)
+
+                                    val copyMusicians = TempMusicians.toTypedArray()
+                                    if (copyMusicians.isNotEmpty())
+                                        this@MainActivity.runOnUiThread {
+                                            findViewById<RecyclerView>(R.id.list).apply {
+                                                adapter =
+                                                    MusicianAdapter(copyMusicians, this@MainActivity, windowManager)
+                                                layoutManager = LinearLayoutManager(this@MainActivity)
+                                            }
+                                        }
+                                }
+                                Thread.sleep(10000)
+                            } catch (e: java.lang.Exception) {
+
+                            }
                         }
                     }.start()
 
