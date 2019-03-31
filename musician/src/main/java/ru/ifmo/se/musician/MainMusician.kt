@@ -35,7 +35,7 @@ class MainMusician : AppCompatActivity() {
             val endTime = findViewById<TextInputEditText>(R.id.end_time).text.toString()
             val builder = Musician.newBuilder().setStartTime(startTime).setEndTime(endTime)
 
-            val request = GeocodeRequest2(address).setSearchArea(GeoCoordinate(59.9343, 30.3351), 10)
+            val request = GeocodeRequest2(address).setSearchArea(GeoCoordinate(52.5200, 13.4050), 10)
             request.execute(MyResultListener(builder))
             finish()
         }

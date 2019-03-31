@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity() {
 
                     ////
                     map = mapFragment.map
-                    map.setCenter(GeoCoordinate(59.9343, 30.3351), Map.Animation.NONE)
+                    map.setCenter(GeoCoordinate(52.5200, 13.4050), Map.Animation.NONE)
                     map.zoomLevel = (map.maxZoomLevel + map.minZoomLevel) / 2
 
                     PositioningManager.getInstance().start(PositioningManager.LocationMethod.GPS_NETWORK)
