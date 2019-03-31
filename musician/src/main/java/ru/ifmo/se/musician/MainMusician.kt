@@ -26,9 +26,21 @@ class MainMusician : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setContentView(R.layout.activity_main_musician)
+        val bundle=intent.extras
+
+        val lat:Double = bundle.getDouble("Lat")
+        val lng:Double = bundle.getDouble("Lng")
+
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
+        if (lat != 0.0) {
+            val location = findViewById<TextInputEditText>(R.id.location)
+            location.setText("Alexanderplatz")
+//            location.isEnabled = false
+        }
         findViewById<Button>(R.id.addProfile).setOnClickListener {
             val address = findViewById<TextInputEditText>(R.id.location).text.toString()
             val startTime = findViewById<TextInputEditText>(R.id.start_time).text.toString()
@@ -36,14 +48,15 @@ class MainMusician : AppCompatActivity() {
             val builder = Musician.newBuilder().setStartTime(startTime).setEndTime(endTime)
 
 
-            val trackList = findViewById<ListView>(R.id.tracks)
-            val row_genre = findViewById<TextInputEditText>(R.id.sing_appender)
-            findViewById<ImageView>(R.id.add_sing_button).setOnClickListener {
-                if (!row_genre.text.isEmpty()) {
-                    
-
-                }
-            }
+//            val trackList = findViewById<ListView>(R.id.tracks)
+//            val row_genre = findViewById<TextInputEditText>(R.id.sing_appender)
+//            findViewById<ImageView>(R.id.add_sing_button).setOnClickListener {
+//                if (!row_genre.text.isEmpty()) {
+//
+//
+//
+//                }
+//            }
 
             val request = GeocodeRequest2(address).setSearchArea(GeoCoordinate(52.5200, 13.4050), 10)
             request.execute(MyResultListener(builder))

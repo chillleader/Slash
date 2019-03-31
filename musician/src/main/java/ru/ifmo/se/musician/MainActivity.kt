@@ -73,8 +73,13 @@ class MainActivity : AppCompatActivity() {
         checkPermissions()
         findViewById<FloatingActionButton>(R.id.profileButton).setOnClickListener {
             val intent = Intent(this, MainMusician::class.java)
-            intent.putExtra("Lat", latt)
-            intent.putExtra("Lng", lngg)
+            if (m_tap_marker != null) {
+                intent.putExtra("Lat", 52.5219)
+                intent.putExtra("Lng", 13.4132)
+            } else {
+                intent.putExtra("Lat", 0.0)
+                intent.putExtra("Lng", 0.0)
+            }
             startActivity(intent)
         }
     }
