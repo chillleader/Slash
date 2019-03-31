@@ -36,7 +36,7 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
         holder.endTime.text = musician.endTime
         val id = when (musician.name) {
             "A\$AP Pocket" -> R.drawable.face
-            "Dog" -> R.drawable.snoop
+            "Dogg" -> R.drawable.snoop
             "2Pacman" -> R.drawable.ed_sheeran
             "Dr. Der" -> R.drawable.naruto
             else -> R.drawable.default_profile_pic
