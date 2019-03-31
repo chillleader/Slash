@@ -210,7 +210,7 @@ class MainActivity : AppCompatActivity() {
                             enT.text = musician.endTime
 
 
-                            val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
+                            /*val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
                             for (sing in musician.tracksList) {
                                 val textView = TextView(pw.context)
 
@@ -224,10 +224,11 @@ class MainActivity : AppCompatActivity() {
                                 textView.setTypeface(typeface)
 
                                 littleList.addView(textView)
-                            }
+                            }*/
                             val return_but = pw.findViewById<Button>(R.id.return_button)
                             return_but.setOnClickListener {
                                 pw.dismiss()
+                                map.setCenter(GeoCoordinate(musician.xCoord, musician.yCoord), Map.Animation.LINEAR)
                             }
 
 

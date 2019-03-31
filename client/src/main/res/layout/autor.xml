@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
+              android:background="@color/bgcolor"
               android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
@@ -25,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Musician"
-                android:textSize="25dp"
+                android:textSize="20dp"
                 android:layout_marginLeft="30dp"
                 android:textColor="#ffffff"
                 android:fontFamily="@font/roboto_regular_sh"
@@ -37,7 +38,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:weightSum="21"
-            android:background="#FF333333"
+            android:background="#D0000000"
     >
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="match_parent"
@@ -61,6 +62,7 @@
                     android:layout_weight="0.4"
                     android:fontFamily="@font/roboto_regular_sh"
                     android:textColor="@color/autor_text"
+                    android:textSize = "35sp"
                     android:gravity="center"
                     android:autoSizeMinTextSize="12sp"
                     android:autoSizeMaxTextSize="36sp"
@@ -71,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Rock, hip-hop, rap"
-                    android:textSize="10sp"
+                    android:textSize="15sp"
                     android:textColor="@color/autor_text"
                     android:layout_gravity="top|center"
                     android:layout_weight="0.45"
@@ -87,7 +89,7 @@
             <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Artist track-list"
+                    android:text="Time and place:"
                     android:layout_weight="0.25"
                     android:paddingLeft="26dp"
                     android:textColor="@color/autor_text"
@@ -143,6 +145,27 @@
                       android:layout_height="match_parent"
                       android:orientation="vertical"
                       android:layout_weight="3.0">
+            <Button
+                    android:id="@+id/nav_button"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/ic_maps_and_flags"
+                    android:drawableTint="@color/colorAccent"
+                    android:layout_gravity="center"
+                    android:rotation="0"
+            />
+            <TextView
+                    android:id="@+id/address"
+                    android:autoSizeMinTextSize="6sp"
+                    android:autoSizeMaxTextSize="15sp"
+                    android:autoSizeStepGranularity="2sp"
+                    android:layout_gravity="center"
+                    android:text="Click to move to location"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/autor_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             <!--<LinearLayout-->
                     <!--android:layout_width="match_parent"-->
                     <!--android:layout_height="match_parent"-->
@@ -214,7 +237,8 @@
                 <Button android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/rounded_rect_green"
-                        android:layout_margin="3dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="3dp"
                         android:autoSizeMinTextSize="10sp"
                         android:autoSizeMaxTextSize="20sp"
                         android:autoSizeStepGranularity="2sp"
@@ -225,7 +249,8 @@
                 <Button android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/rounded_rect_green"
-                        android:layout_margin="3dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="3dp"
                         android:autoSizeMinTextSize="10sp"
                         android:autoSizeMaxTextSize="20sp"
                         android:autoSizeStepGranularity="2sp"
@@ -236,7 +261,8 @@
                 <Button android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/rounded_rect_green"
-                        android:layout_margin="3dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="3dp"
                         android:autoSizeMinTextSize="10sp"
                         android:autoSizeMaxTextSize="20sp"
                         android:autoSizeStepGranularity="2sp"
@@ -247,7 +273,8 @@
                 <Button android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/rounded_rect_green"
-                        android:layout_margin="3dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="3dp"
                         android:autoSizeMinTextSize="10sp"
                         android:autoSizeMaxTextSize="20sp"
                         android:autoSizeStepGranularity="2sp"
@@ -258,12 +285,13 @@
 
                 <Button android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/rounded_rect_blue_squared"
+                        android:background="@null"
+                        android:layout_marginTop="15dp"
                         android:autoSizeMinTextSize="10sp"
                         android:autoSizeMaxTextSize="20sp"
                         android:autoSizeStepGranularity="2sp"
                         android:textColor="@color/autor_text"
-                        android:text="DONATE $"
+                        android:text="DONATE"
                         android:layout_weight="0.16"
                 />
 

@@ -23,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Gravity
+import android.webkit.GeolocationPermissions
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -33,6 +34,7 @@ import com.here.android.mpa.common.*
 import com.here.android.mpa.mapping.*
 import com.here.android.mpa.mapping.Map
 import com.here.android.mpa.routing.*
+import com.nokia.maps.restrouting.Waypoint
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import ru.ifmo.se.protofiles.CommunicatorGrpc
@@ -56,7 +58,8 @@ class MainActivity : AppCompatActivity() {
     )
     private val INTENT_NAME = "INIT_MAP"
 
-    private var ROUTE_RADIUS = 6000.0
+    private var ROUTE_RADIUS = 2000.0
+    private var MAX_WAYPOINTS = 3
 
     lateinit var map: Map
     private lateinit var mapFragment: SupportMapFragment
@@ -84,8 +87,8 @@ class MainActivity : AppCompatActivity() {
             } else {
                 val pm = PositioningManager.getInstance()
                 pm.start(PositioningManager.LocationMethod.GPS_NETWORK)
-                val curX = pm.position.coordinate.latitude
-                val curY = pm.position.coordinate.longitude
+                var curX = pm.position.coordinate.latitude
+                var curY = pm.position.coordinate.longitude
                 var dist: Double
 
                 val router = CoreRouter()
@@ -101,20 +104,41 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
                 plan.addWaypoint(RouteWaypoint(GeoCoordinate(curX, curY)))
+                val waypointList = ArrayList<Musician>()
                 for (musician in musicians) {
                     dist = distance(curX, curY, musician.xCoord, musician.yCoord)
                     Log.i("ForDist", dist.toString())
                     if (dist < ROUTE_RADIUS)
-                        plan.addWaypoint(RouteWaypoint(GeoCoordinate(musician.xCoord, musician.yCoord)))
+                        waypointList.add(musician)
                 }
+
+                var nearestWp : Musician = musicians[0]
+                // reuse curX & curY
+                var n = waypointList.size
+                for (i in 1..n) {
+                    if (i > MAX_WAYPOINTS) break
+                    var leastDist = 9999.0
+                    for (wp in waypointList) {
+                        if (distance(curX, curY, wp.xCoord, wp.yCoord) < leastDist) {
+                            leastDist = distance(curX, curY, wp.xCoord, wp.yCoord)
+                            nearestWp = wp
+                        }
+                    }
+                    plan.addWaypoint(RouteWaypoint(GeoCoordinate(nearestWp.xCoord, nearestWp.yCoord)))
+                    curX = nearestWp.xCoord
+                    curY = nearestWp.yCoord
+                    waypointList.remove(nearestWp)
+                }
+
                 val options = RouteOptions()
                 options.transportMode = RouteOptions.TransportMode.PEDESTRIAN
                 options.routeType = RouteOptions.Type.SHORTEST
                 plan.routeOptions = options
+                try {
                 router.calculateRoute(
                     plan,
                     RouteListener(map, applicationContext, GeoCoordinate(curX, curY), lastRoute)
-                )
+                )} catch (e : java.lang.Exception) {}
                 isRoutePlanned = true
                 Log.i("ForRoute", "Set true")
                 Log.i("ForRoute", isRoutePlanned.toString())
@@ -240,7 +264,7 @@ class MainActivity : AppCompatActivity() {
                             enT.text = musician.endTime
 
 
-                            val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
+                            /*val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
                             for (sing in musician.tracksList) {
                                 val textView = TextView(pw.context)
 
@@ -255,6 +279,14 @@ class MainActivity : AppCompatActivity() {
                                 textView.setTypeface(typeface)
 
                                 littleList.addView(textView)
+                            }*/
+                            val address = pw.findViewById<LinearLayout>(R.id.address)
+                            val textView = TextView(pw.context)
+                            textView.text = GeoPosition(GeoCoordinate(musician.xCoord, musician.yCoord)).buildingName
+                            val navButton = pw.findViewById<Button>(R.id.nav_button)
+                            navButton.setOnClickListener {
+                                pw.dismiss()
+                                map.setCenter(GeoCoordinate(musician.xCoord, musician.yCoord), Map.Animation.LINEAR)
                             }
                             val return_but = pw.findViewById<Button>(R.id.return_button)
                             return_but.setOnClickListener {
@@ -378,50 +410,63 @@ class MainActivity : AppCompatActivity() {
 
                     Thread {
                         while(true) {
-                            //map.removeMapObjects(musiciansMarkers.toList())
+                            try {
+                                //map.removeMapObjects(musiciansMarkers.toList())
 
-                            Log.i("forEach", "Executing")
-
-
-                            GrpcTask(musicians).execute()
-                            tempMusiciansMarkers.clear()
-                            musiciansForDelete.clear()
-                            musicians.forEach {
-                                val image = Image()
-                                image.bitmap = musicianIcon
-                                if (!it.name.equals("None")) {
-                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
-                                } else {
-                                    musiciansForDelete.add(it)
-                                    val newimage = Image()
-                                    newimage.bitmap = unkMusicianIcon
-                                    tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), newimage))
-                                }
-                                Log.i("ForEach", it.name)
-                            }
+                                Log.i("forEach", "Executing")
 
 
-                            if (!tempMusiciansMarkers.isEmpty()) {
-                                cl.removeMarkers(musiciansMarkers)
-
-                                musiciansMarkers = tempMusiciansMarkers
-                                cl.addMarkers(musiciansMarkers.toList())
-                                map.addClusterLayer(cl)
-                                val TempMusicians = arrayListOf<Musician>()
-                                for (mus in musicians)
-                                    if (!mus.name.equals("None"))
-                                        TempMusicians.add(mus)
-
-                                val copyMusicians = TempMusicians.toTypedArray()
-                                if (copyMusicians.isNotEmpty())
-                                    this@MainActivity.runOnUiThread {
-                                        findViewById<RecyclerView>(R.id.list).apply {
-                                            adapter = MusicianAdapter(copyMusicians, this@MainActivity, windowManager)
-                                            layoutManager = LinearLayoutManager(this@MainActivity)
-                                        }
+                                GrpcTask(musicians).execute()
+                                tempMusiciansMarkers.clear()
+                                musiciansForDelete.clear()
+                                musicians.forEach {
+                                    val image = Image()
+                                    image.bitmap = musicianIcon
+                                    if (!it.name.equals("None")) {
+                                        tempMusiciansMarkers.add(MapMarker(GeoCoordinate(it.xCoord, it.yCoord), image))
+                                    } else {
+                                        musiciansForDelete.add(it)
+                                        val newimage = Image()
+                                        newimage.bitmap = unkMusicianIcon
+                                        tempMusiciansMarkers.add(
+                                            MapMarker(
+                                                GeoCoordinate(it.xCoord, it.yCoord),
+                                                newimage
+                                            )
+                                        )
                                     }
-                            }
-                            Thread.sleep(10000)
+                                    Log.i("ForEach", it.name)
+                                }
+
+
+                                if (!tempMusiciansMarkers.isEmpty()) {
+                                    cl.removeMarkers(musiciansMarkers)
+
+                                    musiciansMarkers = tempMusiciansMarkers
+                                    cl.addMarkers(musiciansMarkers.toList())
+                                    map.addClusterLayer(cl)
+                                    val TempMusicians = arrayListOf<Musician>()
+                                    for (mus in musicians)
+                                        if (!mus.name.equals("None"))
+                                            TempMusicians.add(mus)
+
+                                    val copyMusicians = TempMusicians.toTypedArray()
+                                    if (copyMusicians.isNotEmpty())
+                                        this@MainActivity.runOnUiThread {
+                                            findViewById<RecyclerView>(R.id.list).apply {
+                                                adapter = MusicianAdapter(
+                                                    copyMusicians,
+                                                    this@MainActivity,
+                                                    windowManager,
+                                                    map
+                                                )
+                                                layoutManager = LinearLayoutManager(this@MainActivity)
+
+                                            }
+                                        }
+                                }
+                                Thread.sleep(10000)
+                            } catch (e : java.lang.Exception) {}
                         }
                     }.start()
 

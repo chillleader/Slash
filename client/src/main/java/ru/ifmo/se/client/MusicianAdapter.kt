@@ -13,11 +13,14 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.here.android.mpa.common.GeoCoordinate
+import com.here.android.mpa.common.GeoPosition
+import com.here.android.mpa.mapping.Map
 import ru.ifmo.se.protofiles.Musician
 
 
 
-class MusicianAdapter(private val list: Array<Musician>, val context: Context, val windowManaer: WindowManager): RecyclerView.Adapter<MusicianAdapter.MusicianHolder>() {
+class MusicianAdapter(private val list: Array<Musician>, val context: Context, val windowManaer: WindowManager, parentMap: Map): RecyclerView.Adapter<MusicianAdapter.MusicianHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicianHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.list_row, parent, false)
@@ -88,7 +91,7 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
             enT.setTextColor(argb(0xff, 0xff, 0xff, 0xff))
 
 
-            val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
+           /* val littleList = pw.findViewById<LinearLayout>(R.id.little_list)
             for (sing in musician.tracksList) {
                 val textView = TextView(pw.context)
                 textView.layoutParams = LinearLayout.LayoutParams(
@@ -100,6 +103,15 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
                 val typeface = ResourcesCompat.getFont(pw.context, R.font.roboto_regular)
                 textView.setTypeface(typeface)
                 littleList.addView(textView)
+            }*/
+
+            val address = pw.findViewById<LinearLayout>(R.id.address)
+            val textView = TextView(pw.context)
+            textView.text = GeoPosition(GeoCoordinate(musician.xCoord, musician.yCoord)).buildingName
+            val navButton = pw.findViewById<Button>(R.id.nav_button)
+            navButton.setOnClickListener {
+                pw.dismiss()
+
             }
 
             val return_but = pw.findViewById<Button>(R.id.return_button)
