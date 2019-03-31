@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     )
     private val INTENT_NAME = "INIT_MAP"
 
-    private var ROUTE_RADIUS = 10000.0
+    private var ROUTE_RADIUS = 6000.0
 
     lateinit var map: Map
     private lateinit var mapFragment: SupportMapFragment
@@ -214,10 +214,10 @@ class MainActivity : AppCompatActivity() {
 
                             val singerIcon = pw.findViewById<ImageView>(R.id.image)
                             val id = when (musician.name) {
-                                "A\$AP Pocket" -> R.drawable.face
+                                "A\$AP Pocket" -> R.drawable.asap
                                 "Dogg" -> R.drawable.snoop
-                                "2Pacman" -> R.drawable.ed_sheeran
-                                "Dr. Der" -> R.drawable.naruto
+                                "2Pacman" -> R.drawable.twopac
+                                "Dr. Der" -> R.drawable.dredre
                                 else -> R.drawable.default_profile_pic
                             }
                             singerIcon.setImageResource(id)
@@ -450,7 +450,6 @@ class MainActivity : AppCompatActivity() {
 
         return 6366000 * tt
     }
-}
 
 
     private class GrpcTask constructor(_musicians: ArrayList<Musician>) : AsyncTask<Void, Void, String>() {
@@ -481,22 +480,15 @@ class MainActivity : AppCompatActivity() {
                 pw.flush()
                 "Failed... : %s".format(sw)
             }
-            Log.i("ForThread", "OK")
-            "OK"
-        } catch (e: Exception) {
-            val sw = StringWriter()
-            val pw = PrintWriter(sw)
-            e.printStackTrace(pw)
-            pw.flush()
-            "Failed... : %s".format(sw)
-        }
-    }
 
-    override fun onPostExecute(poof: String) {
-        try {
-            channel?.shutdown()?.awaitTermination(1, TimeUnit.SECONDS)
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
+        }
+
+        override fun onPostExecute(poof: String) {
+            try {
+                channel?.shutdown()?.awaitTermination(1, TimeUnit.SECONDS)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
         }
     }
 

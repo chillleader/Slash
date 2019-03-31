@@ -35,10 +35,10 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
         holder.startTime.text = musician.startTime
         holder.endTime.text = musician.endTime
         val id = when (musician.name) {
-            "A\$AP Pocket" -> R.drawable.face
+            "A\$AP Pocket" -> R.drawable.asap
             "Dogg" -> R.drawable.snoop
-            "2Pacman" -> R.drawable.ed_sheeran
-            "Dr. Der" -> R.drawable.naruto
+            "2Pacman" -> R.drawable.twopac
+            "Dr. Der" -> R.drawable.dredre
             else -> R.drawable.default_profile_pic
         }
         val changeImRunnable: Runnable = object : Runnable {
@@ -58,10 +58,10 @@ class MusicianAdapter(private val list: Array<Musician>, val context: Context, v
 
             val singerIcon = pw.findViewById<ImageView>(R.id.image)
             val id = when (musician.name) {
-                "Face" -> R.drawable.face
-                "Dog" -> R.drawable.snoop
-                "Ed Sheeran" -> R.drawable.ed_sheeran
-                "Naruto" -> R.drawable.naruto
+                "A\$AP Pocket" -> R.drawable.asap
+                "Dogg" -> R.drawable.snoop
+                "2Pacman" -> R.drawable.twopac
+                "Dr. Der" -> R.drawable.dredre
                 else -> R.drawable.default_profile_pic
             }
             val changeImRunnable: Runnable = object : Runnable {

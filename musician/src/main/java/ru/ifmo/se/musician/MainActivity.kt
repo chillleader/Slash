@@ -157,10 +157,10 @@ class MainActivity : AppCompatActivity() {
 
                             val singerIcon = pw.findViewById<ImageView>(R.id.image)
                             val id = when (musician.name) {
-                                "A\$AP Pocket" -> R.drawable.face
+                                "A\$AP Pocket" -> R.drawable.asap
                                 "Dogg" -> R.drawable.snoop
-                                "2Pacman" -> R.drawable.ed_sheeran
-                                "Dr. Der" -> R.drawable.naruto
+                                "2Pacman" -> R.drawable.twopac
+                                "Dr. Der" -> R.drawable.dredre
                                 else -> R.drawable.default_profile_pic
                             }
                             singerIcon.setImageResource(id)
