@@ -2,6 +2,8 @@ package ru.ifmo.se.client
 
 import android.Manifest
 import android.app.Dialog
+
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -26,9 +28,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.here.android.mpa.cluster.ClusterLayer
+import android.widget.*
 import com.here.android.mpa.common.*
 import com.here.android.mpa.mapping.*
 import com.here.android.mpa.mapping.Map
+import com.here.android.mpa.routing.*
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import ru.ifmo.se.protofiles.CommunicatorGrpc
@@ -39,6 +43,10 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
+import kotlin.math.cos
+import kotlin.math.sin
+import org.jetbrains.anko.*
+
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_CODE_ASK_PERMISSIONS = 1
@@ -48,10 +56,14 @@ class MainActivity : AppCompatActivity() {
     )
     private val INTENT_NAME = "INIT_MAP"
 
-    private lateinit var map: Map
+    private var ROUTE_RADIUS = 10000.0
+
+    lateinit var map: Map
     private lateinit var mapFragment: SupportMapFragment
 
     private val musicians = arrayListOf<Musician>()
+    private val lastRoute = arrayListOf<MapRoute>()
+    private var isRoutePlanned = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +71,55 @@ class MainActivity : AppCompatActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         checkPermissions()
+
+        findViewById<FloatingActionButton>(R.id.routeButton).setOnClickListener {
+            Log.i("ForRoute", "Set")
+            Log.i("ForRoute", isRoutePlanned.toString())
+            if (isRoutePlanned) {
+                for (r in lastRoute) map.removeMapObject(r)
+                lastRoute.clear()
+                isRoutePlanned = false
+                Log.i("ForRoute", "Set false")
+                Log.i("ForRoute", isRoutePlanned.toString())
+            } else {
+                val pm = PositioningManager.getInstance()
+                pm.start(PositioningManager.LocationMethod.GPS_NETWORK)
+                val curX = pm.position.coordinate.latitude
+                val curY = pm.position.coordinate.longitude
+                var dist: Double
+
+                val router = CoreRouter()
+                val plan = RoutePlan()
+
+                // add all nearby musicians
+                if (musicians.size == 0) {
+                    Toast.makeText(
+                        applicationContext,
+                        "There are no musicians to see in your area :(",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+                plan.addWaypoint(RouteWaypoint(GeoCoordinate(curX, curY)))
+                for (musician in musicians) {
+                    dist = distance(curX, curY, musician.xCoord, musician.yCoord)
+                    Log.i("ForDist", dist.toString())
+                    if (dist < ROUTE_RADIUS)
+                        plan.addWaypoint(RouteWaypoint(GeoCoordinate(musician.xCoord, musician.yCoord)))
+                }
+                val options = RouteOptions()
+                options.transportMode = RouteOptions.TransportMode.PEDESTRIAN
+                options.routeType = RouteOptions.Type.SHORTEST
+                plan.routeOptions = options
+                router.calculateRoute(
+                    plan,
+                    RouteListener(map, applicationContext, GeoCoordinate(curX, curY), lastRoute)
+                )
+                isRoutePlanned = true
+                Log.i("ForRoute", "Set true")
+                Log.i("ForRoute", isRoutePlanned.toString())
+            }
+        }
     }
 
     private fun checkPermissions() {
@@ -88,18 +149,18 @@ class MainActivity : AppCompatActivity() {
                     ////
                     mapFragment.mapGesture.addOnGestureListener(object : MapGesture.OnGestureListener {
 
-                        override fun onPanStart() { }
+                        override fun onPanStart() {}
 
                         override fun onPanEnd() {
                             /* show toast message for onPanEnd gesture callback */
                             Log.i("Fuck", "onPanEnd")
                         }
 
-                        override fun onMultiFingerManipulationStart() { }
-                        override fun onMultiFingerManipulationEnd() { }
-                        override fun onMapObjectsSelected(list : List<ViewObject>) : Boolean {
-                            Log.i( "Fuck" ,"onTapEvent")
-                            Log.i( "ForFuck" ,"HERE!!!!!")
+                        override fun onMultiFingerManipulationStart() {}
+                        override fun onMultiFingerManipulationEnd() {}
+                        override fun onMapObjectsSelected(list: List<ViewObject>): Boolean {
+                            Log.i("Fuck", "onTapEvent")
+                            Log.i("ForFuck", "HERE!!!!!")
                             for (viewObj in list)
                                 if (viewObj.getBaseType() == ViewObject.Type.USER_OBJECT) {
                                     if ((viewObj as MapObject).getType() == MapObject.Type.MARKER) {
@@ -107,11 +168,11 @@ class MainActivity : AppCompatActivity() {
                                         // map marker, so we can do something with it
                                         // (like change the visibility, or more
                                         // marker-specific actions)
-                                        val x =(viewObj as MapMarker).coordinate.latitude
-                                        val y =(viewObj as MapMarker).coordinate.longitude
+                                        val x = (viewObj as MapMarker).coordinate.latitude
+                                        val y = (viewObj as MapMarker).coordinate.longitude
 
                                         var tempMusicians = arrayListOf<Musician>().toTypedArray()
-                                        while (tempMusicians.size == 0)
+                                        while (tempMusicians.isEmpty())
                                             if (!musicians.isEmpty()) {
                                                 tempMusicians = musicians.toTypedArray()
                                             }
@@ -185,7 +246,8 @@ class MainActivity : AppCompatActivity() {
 
                                 textView.layoutParams = LinearLayout.LayoutParams(
                                     LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.WRAP_CONTENT)
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
                                 textView.text = sing
                                 textView.setTextColor(argb(0xff, 0x00, 0x00, 0x00))
                                 textView.setPadding(58, 4, 4, 4)
@@ -198,7 +260,6 @@ class MainActivity : AppCompatActivity() {
                             return_but.setOnClickListener {
                                 pw.dismiss()
                             }
-
 
 
 //            <LinearLayout
@@ -227,51 +288,48 @@ class MainActivity : AppCompatActivity() {
 //            />
 
 
-
-
-
                             /////////////////////////////
                         }
 
-                        override fun onTapEvent(pointF : PointF) : Boolean {
+                        override fun onTapEvent(pointF: PointF): Boolean {
                             /* show toast message for onPanEnd gesture callback */
                             return false
                         }
 
-                        override fun  onDoubleTapEvent(pointF : PointF) : Boolean {
+                        override fun onDoubleTapEvent(pointF: PointF): Boolean {
                             return false
                         }
 
-                        override fun  onPinchLocked() {
+                        override fun onPinchLocked() {
 
                         }
 
-                        override fun onPinchZoomEvent(v: Float , pointF : PointF) : Boolean {
+                        override fun onPinchZoomEvent(v: Float, pointF: PointF): Boolean {
                             return false
                         }
 
-                        override fun  onRotateLocked() {
+                        override fun onRotateLocked() {
                         }
 
-                        override fun  onRotateEvent(v : Float) : Boolean {
+                        override fun onRotateEvent(v: Float): Boolean {
                             /* show toast message for onRotateEvent gesture callback */
                             Log.i("Fuck", "onRotateEvent")
                             return false
                         }
 
-                        override fun onTiltEvent(v : Float) : Boolean {
+                        override fun onTiltEvent(v: Float): Boolean {
                             return false
                         }
 
-                        override fun  onLongPressEvent(v : PointF) : Boolean {
+                        override fun onLongPressEvent(v: PointF): Boolean {
                             Log.i("Fuck", "onLongPressEvent")
                             return false
                         }
 
-                        override fun onLongPressRelease() : Unit {
+                        override fun onLongPressRelease(): Unit {
                         }
 
-                        override fun  onTwoFingerTapEvent( pointF : PointF) : Boolean {
+                        override fun onTwoFingerTapEvent(pointF: PointF): Boolean {
                             Log.i("Fuck", "onTwoFingerTapEvent")
                             return false
                         }
@@ -280,6 +338,7 @@ class MainActivity : AppCompatActivity() {
                     ////
                     map = mapFragment.map
                     map.setCenter(GeoCoordinate(52.5200, 13.4050), Map.Animation.NONE)
+
                     map.zoomLevel = (map.maxZoomLevel + map.minZoomLevel) / 2
 
                     PositioningManager.getInstance().start(PositioningManager.LocationMethod.GPS_NETWORK)
@@ -322,6 +381,7 @@ class MainActivity : AppCompatActivity() {
                             //map.removeMapObjects(musiciansMarkers.toList())
 
                             Log.i("forEach", "Executing")
+
 
                             GrpcTask(musicians).execute()
                             tempMusiciansMarkers.clear()
@@ -370,28 +430,56 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+
+
+    }
+
+    private fun distance(lat_a: Double, lng_a: Double, lat_b: Double, lng_b: Double): Double {
+        val pk = (180 / 3.14169).toFloat()
+
+        val a1 = lat_a / pk
+        val a2 = lng_a / pk
+        val b1 = lat_b / pk
+        val b2 = lng_b / pk
+
+        val t1 = cos(a1) * cos(a2) * cos(b1) * cos(b2)
+        val t2 = cos(a1) * sin(a2) * cos(b1) * sin(b2)
+        val t3 = sin(a1) * sin(b1)
+        val tt = Math.acos((t1 + t2 + t3))
+
+        return 6366000 * tt
     }
 }
 
-private class GrpcTask constructor(_musicians: ArrayList<Musician>) : AsyncTask<Void, Void, String>() {
-    private val musicians = _musicians
-    private var channel: ManagedChannel? = null
 
-    override fun doInBackground(vararg poof: Void) : String {
-//        val host = "10.100.110.201"
-        val host = "35.228.95.2"
-//        val host = "192.168.43.230"
-        val port = 50051
-        return try {
-            channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
-            val stub = CommunicatorGrpc.newBlockingStub(channel)
-            val request = EmptyMessage.newBuilder().build()
-            val reply = stub.poll(request)
-            Log.i("ForThread", "Before")
-            musicians.clear()
-            for (musician in reply) {
-                musicians.add(musician)
-                Log.i("ForThread", musician.name)
+    private class GrpcTask constructor(_musicians: ArrayList<Musician>) : AsyncTask<Void, Void, String>() {
+        private val musicians = _musicians
+        private var channel: ManagedChannel? = null
+
+        override fun doInBackground(vararg poof: Void): String {
+            val host = "35.228.95.2"
+//            val host = "192.168.43.230"
+            val port = 50051
+            return try {
+                channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
+                val stub = CommunicatorGrpc.newBlockingStub(channel)
+                val request = EmptyMessage.newBuilder().build()
+                val reply = stub.poll(request)
+                val tempMusicians = arrayListOf<Musician>()
+                Log.i("ForThread", "Before")
+                musicians.clear()
+                for (musician in reply) {
+                    musicians.add(musician)
+                    Log.i("ForThread", musician.name)
+                }
+                "OK"
+            } catch (e: Exception) {
+                val sw = StringWriter()
+                val pw = PrintWriter(sw)
+                e.printStackTrace(pw)
+                pw.flush()
+                "Failed... : %s".format(sw)
             }
             Log.i("ForThread", "OK")
             "OK"
@@ -411,5 +499,38 @@ private class GrpcTask constructor(_musicians: ArrayList<Musician>) : AsyncTask<
             Thread.currentThread().interrupt()
         }
     }
-}
 
+
+    private class RouteListener constructor(
+        val parentMap: Map,
+        val context: Context,
+        val loc: GeoCoordinate,
+        val lastRoute: ArrayList<MapRoute>
+    ) :
+        CoreRouter.Listener {
+
+
+        override fun onProgress(percentage: Int) {
+            // Display a message indicating calculation progress
+        }
+
+        override fun onCalculateRouteFinished(routeResult: List<RouteResult>, error: RoutingError) {
+            // If the route was calculated successfully
+            if (error == RoutingError.NONE) {
+                Log.i("ForRoute", "Building route successful")
+                // Render the route on the mal
+                val mapRoute = MapRoute(routeResult[0].route)
+                parentMap.addMapObject(mapRoute)
+                lastRoute.add(mapRoute)
+
+                lastRoute
+                Log.i("ForRoute", "Building route successful again")
+                parentMap.setCenter(loc, Map.Animation.BOW)
+
+            } else {
+                Toast.makeText(context, "There are no musicians to see in your area :(", Toast.LENGTH_SHORT).show()
+                Log.e("ForRoute", "Route building fucked up")
+            }
+        }
+    }
+}
