@@ -357,12 +357,13 @@ class MainActivity : AppCompatActivity() {
 
                     Log.i("forEach", "Before")
                     var musiciansMarkers = ArrayList<MapMarker>()
-                    val tempMusiciansMarkers = ArrayList<MapMarker>()
+                    var tempMusiciansMarkers = ArrayList<MapMarker>()
                     val cl = ClusterLayer()
                     val musiciansForDelete = arrayListOf<Musician>()
 
                     Thread {
                         doAsync {
+                            Log.i("ForForFor", "OLOLOLOLOLOO")
                             val result = URL("http://35.228.95.2:3000/get?day=Monday&time=12&n=70").readText()
                             Log.i("ForResult", result)
                             Log.i("ForResultt", "PARSED")
@@ -396,7 +397,7 @@ class MainActivity : AppCompatActivity() {
                                 Log.i("forEach", "Executing")
 
                                 GrpcTask(musicians).execute()
-                                tempMusiciansMarkers.clear()
+                                tempMusiciansMarkers = ArrayList<MapMarker>()
                                 musiciansForDelete.clear()
                                 musicians.forEach {
                                     val image = Image()

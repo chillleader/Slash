@@ -404,7 +404,7 @@ class MainActivity : AppCompatActivity() {
 
                     Log.i("forEach", "Before")
                     var musiciansMarkers = ArrayList<MapMarker>()
-                    val tempMusiciansMarkers = ArrayList<MapMarker>()
+                    var tempMusiciansMarkers = ArrayList<MapMarker>()
                     val cl = ClusterLayer()
                     val musiciansForDelete = arrayListOf<Musician>()
 
@@ -417,7 +417,7 @@ class MainActivity : AppCompatActivity() {
 
 
                                 GrpcTask(musicians).execute()
-                                tempMusiciansMarkers.clear()
+                                tempMusiciansMarkers = arrayListOf<MapMarker>()
                                 musiciansForDelete.clear()
                                 musicians.forEach {
                                     val image = Image()
